@@ -79,15 +79,13 @@ public class ApiHelper {
                 if (response.isSuccessful()) {
                     String data = response.body().string();
                     subscriber.onNext(data);
-                    subscriber.onComplete();
-                } else {
-                    // notify error
-                    subscriber.onError(new Throwable());
                 }
 
-            } catch (IOException e) {
+            } catch (Exception e) {
                 // notify error e.getMessage()
-                subscriber.onError(new Throwable());
+                subscriber.onError(e);
+            }finally {
+                subscriber.onComplete();
             }
         });
     }
@@ -121,15 +119,13 @@ public class ApiHelper {
                         if (response.isSuccessful()) {
                             String data = response.body().string();
                             subscriber.onNext(data);
-                            subscriber.onComplete();
-                        } else {
-                            // notify error
-                            subscriber.onError(new Throwable());
                         }
 
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         // notify error e.getMessage()
-                        subscriber.onError(new Throwable());
+                        subscriber.onError(e);
+                    }finally {
+                        subscriber.onComplete();
                     }
                 }
         );
@@ -165,15 +161,13 @@ public class ApiHelper {
                 if (response.isSuccessful()) {
                     String data = response.body().string();
                     subscriber.onNext(data);
-                    subscriber.onComplete();
-                } else {
-                    // notify error
-                    subscriber.onError(new Throwable());
                 }
 
-            } catch (IOException e) {
+            } catch (Exception e) {
                 // notify error e.getMessage()
-                subscriber.onError(new Throwable());
+                subscriber.onError(e);
+            }finally {
+                subscriber.onComplete();
             }
 
         });
@@ -209,15 +203,13 @@ public class ApiHelper {
                 if (response.isSuccessful()) {
                     String data = response.body().string();
                     subscriber.onNext(data);
-                    subscriber.onComplete();
-                } else {
-                    // notify error
-                    subscriber.onError(new Throwable());
                 }
 
-            } catch (IOException e) {
+            } catch (Exception e) {
                 // notify error e.getMessage()
-                subscriber.onError(new Throwable());
+                subscriber.onError(e);
+            }finally {
+                subscriber.onComplete();
             }
 
         });

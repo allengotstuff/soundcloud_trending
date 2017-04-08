@@ -90,7 +90,7 @@ public class NetworkingTest {
 
         TestObserver<FollowingList> testSubscriber = new TestObserver<>();
 
-        myApiHelper.getTargetFollowers()
+        myApiHelper.getTargetFollowers().onErrorReturnItem("error")
                 .subscribeOn(Schedulers.from(myExecutor))
                 .map(response -> GsonParser.parseFollower(response))
                 .subscribe(testSubscriber);

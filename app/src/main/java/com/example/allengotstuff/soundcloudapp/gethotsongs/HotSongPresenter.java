@@ -1,6 +1,7 @@
 package com.example.allengotstuff.soundcloudapp.gethotsongs;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.example.allengotstuff.soundcloudapp.App;
 import com.example.allengotstuff.soundcloudapp.data.network.ApiHelper;
@@ -14,6 +15,9 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
@@ -35,6 +39,7 @@ public class HotSongPresenter implements HotSongContract.Presenter {
     private List<Track> hotTracks;
 
 
+
     public HotSongPresenter(@NonNull HotSongContract.View view, @NonNull ApiHelper apiHelper, @NonNull Executor executor) {
 
         myView = checkNotNull(view);
@@ -42,6 +47,7 @@ public class HotSongPresenter implements HotSongContract.Presenter {
         myExecutor = checkNotNull(executor);
 
         hotTracks = new ArrayList<>(150);
+
     }
 
     @Override
@@ -59,8 +65,9 @@ public class HotSongPresenter implements HotSongContract.Presenter {
         }
 
         myApiHelper.getHotTracksObservable(myExecutor)
-                .subscribeOn(Schedulers.from(myExecutor))
+                .subscribeOn(Schedulers.from(myExecutor)).onErrorReturnItem(hotTracks)
                 .filter(trackList -> trackList != null & trackList.size() > 0)
+                .observeOn(AndroidSchedulers.mainThread())
                 .doOnComplete(() -> {
                             Logger.log(TAG, "complete");
                             myView.showHotSongs(hotTracks);

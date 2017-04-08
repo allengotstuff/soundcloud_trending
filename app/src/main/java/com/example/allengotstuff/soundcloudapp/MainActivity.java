@@ -10,6 +10,7 @@ import com.example.allengotstuff.soundcloudapp.data.network.ApiHelper;
 import com.example.allengotstuff.soundcloudapp.databean.Track;
 import com.example.allengotstuff.soundcloudapp.gethotsongs.HotSongContract;
 import com.example.allengotstuff.soundcloudapp.gethotsongs.HotSongPresenter;
+import com.example.allengotstuff.soundcloudapp.list.adapter.HotSongAdapter;
 import com.example.allengotstuff.soundcloudapp.utils.Logger;
 
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ public class MainActivity extends AppCompatActivity implements HotSongContract.V
     private Executor myExecutor;
 
     private HotSongContract.Presenter myPresenter;
+    private   ApiHelper helper;
 
     @BindView (R.id.myRecyclerView) RecyclerView mRecyclerView;
 
@@ -41,13 +43,14 @@ public class MainActivity extends AppCompatActivity implements HotSongContract.V
         setContentView(R.layout.activity_main);
 
         init();
+        initRecyclerView();
 
 //        Logger.log(TAG, "begin network");
-//        helper.getHotTracksObservable(myExecutor)
+//        helper.getHotTracksObservable(myExecutor).onErrorReturnItem(hotTracks)
 //                .subscribeOn(Schedulers.from(myExecutor))
 //                .filter(trackList -> trackList != null & trackList.size() > 0)
 //                .doOnComplete( () ->Logger.log(TAG, "complete" +hotTracks.size() )
-//                )
+//                ).doOnError(throwable-> Logger.log(TAG, throwable.getMessage()))
 //                .subscribe(trackList -> {
 //                    Logger.log(TAG, "adding one to the list, size: "+ trackList.size());
 //                    hotTracks.addAll(trackList);
@@ -57,7 +60,7 @@ public class MainActivity extends AppCompatActivity implements HotSongContract.V
 
 
     private void init(){
-        ApiHelper helper = new ApiHelper(App.getHttpClient());
+        helper = new ApiHelper(App.getHttpClient());
         myExecutor = App.getExecutor();
 
         myPresenter = new HotSongPresenter(this,helper,myExecutor);
@@ -66,32 +69,46 @@ public class MainActivity extends AppCompatActivity implements HotSongContract.V
         ButterKnife.bind(this);
     }
 
-    private void initView(){
+    private void initRecyclerView(){
+
+        hotTracks = new ArrayList<>(150);
 
         mRecyclerView.setHasFixedSize(true);
 
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
+
+        mAdapter = new HotSongAdapter(hotTracks);
+        mRecyclerView.setAdapter(mAdapter);
     }
 
 
 
     @Override
     public void showHotSongs(List hotsongs) {
-        hotTracks = hotsongs;
+
+        if(hotTracks.size()>0)
+            hotTracks.clear();
+
+        if(hotsongs!=null && hotsongs.size()>0 )
+             hotTracks.addAll(hotsongs);
+
+        mAdapter.notifyDataSetChanged();
+
         Logger.log(TAG," hot songs size: "+ hotsongs.size());
 
-        int i =0;
-        while(i<20){
-            Logger.log(TAG," hot songs size: "+ hotsongs.get(i).toString());
-            i++;
-        }
+//        int i =0;
+//        while(i<20){
+//            Logger.log(TAG," hot songs size: "+ hotsongs.get(i).toString());
+//            i++;
+//        }
     }
 
     @Override
     public void showErrorMessage() {
 
+        Logger.log(TAG," showing error message");
     }
 
     @Override
