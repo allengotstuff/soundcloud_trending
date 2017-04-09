@@ -2,7 +2,6 @@ package com.example.allengotstuff.soundcloudapp.data.network;
 
 
 import com.example.allengotstuff.soundcloudapp.databean.FollowingList;
-import com.example.allengotstuff.soundcloudapp.databean.SoundCloudUser;
 import com.example.allengotstuff.soundcloudapp.databean.Track;
 import com.example.allengotstuff.soundcloudapp.utils.GsonParser;
 import com.example.allengotstuff.soundcloudapp.utils.Logger;
@@ -10,7 +9,7 @@ import com.example.allengotstuff.soundcloudapp.utils.Logger;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
+
 
 import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
@@ -30,6 +29,8 @@ import okhttp3.Response;
 public class ApiHelper {
 
     //private static final String BASE_URL = "https://api.soundcloud.com/users/1/followings?client_id=ymymfMYLuW2UgqMxUCL3L9HcQv6Igjnc&page_size=20";
+
+    private static final String TARGET_USER_ID = "1";
 
     private static final String TAG = "ApiHelper";
 
@@ -57,12 +58,13 @@ public class ApiHelper {
      * @return  a observable of sting in json format
      */
     public Observable<String> getTargetFollowers() {
+
         return Observable.create(subscriber -> {
 
             HttpUrl.Builder urlBuilder = HttpUrl.parse(BASE_URL).newBuilder();
             urlBuilder.addEncodedPathSegment(USERS);
             //target user is the first
-            urlBuilder.addEncodedPathSegments("1");
+            urlBuilder.addEncodedPathSegments(TARGET_USER_ID);
             urlBuilder.addEncodedPathSegments(FOLLOWINGS);
             urlBuilder.addEncodedQueryParameter("client_id", CLIENT_ID);
             urlBuilder.addEncodedQueryParameter("page_size", "20");
@@ -76,14 +78,15 @@ public class ApiHelper {
             try {
 
                 Response response = myHttpClient.newCall(request).execute();
-                if (response.isSuccessful()) {
+                if (response !=null & response.isSuccessful()) {
                     String data = response.body().string();
                     subscriber.onNext(data);
                 }
 
-            } catch (Exception e) {
-                // notify error e.getMessage()
+            } catch (IOException  e) {
+
                 subscriber.onError(e);
+
             }finally {
                 subscriber.onComplete();
             }
@@ -121,7 +124,7 @@ public class ApiHelper {
                             subscriber.onNext(data);
                         }
 
-                    } catch (Exception e) {
+                    } catch (IOException e) {
                         // notify error e.getMessage()
                         subscriber.onError(e);
                     }finally {
@@ -163,7 +166,7 @@ public class ApiHelper {
                     subscriber.onNext(data);
                 }
 
-            } catch (Exception e) {
+            } catch (IOException e) {
                 // notify error e.getMessage()
                 subscriber.onError(e);
             }finally {
@@ -205,7 +208,7 @@ public class ApiHelper {
                     subscriber.onNext(data);
                 }
 
-            } catch (Exception e) {
+            } catch (IOException e) {
                 // notify error e.getMessage()
                 subscriber.onError(e);
             }finally {
@@ -234,10 +237,6 @@ public class ApiHelper {
                 .flatMap(userId -> getFavoriotTracksByUser(userId).map(json -> GsonParser.parseFavoriteTracks(json)).subscribeOn(Schedulers.from(executor)));
 
         return followersFavoriteTracks;
-
-//        followersFavoriteTracks.subscribeOn(Schedulers.from(executor))
-//                .filter(tracklist -> tracklist!=null & tracklist.size()>0)
-//                .subscribe(list -> Logger.log(TAG, ""+list.size()));
 
     }
 
