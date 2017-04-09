@@ -15,7 +15,7 @@ public interface HotSongContract {
 
         void showHotSongs(List hotsongs);
 
-        void showErrorMessage();
+        void showErrorMessage(String message);
 
         void setLoadingIndicator(boolean active);
 

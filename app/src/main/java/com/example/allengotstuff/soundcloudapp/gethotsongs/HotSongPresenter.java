@@ -1,13 +1,9 @@
 package com.example.allengotstuff.soundcloudapp.gethotsongs;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 
-import com.example.allengotstuff.soundcloudapp.App;
 import com.example.allengotstuff.soundcloudapp.data.network.ApiHelper;
-import com.example.allengotstuff.soundcloudapp.databean.SoundCloudUser;
 import com.example.allengotstuff.soundcloudapp.databean.Track;
-import com.example.allengotstuff.soundcloudapp.utils.GsonParser;
 import com.example.allengotstuff.soundcloudapp.utils.Logger;
 
 import java.util.ArrayList;
@@ -15,9 +11,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
@@ -64,16 +58,20 @@ public class HotSongPresenter implements HotSongContract.Presenter {
             hotTracks.clear();
         }
 
-        myApiHelper.getHotTracksObservable(myExecutor)
-                .subscribeOn(Schedulers.from(myExecutor)).onErrorReturnItem(hotTracks)
+        myApiHelper.getHotTracksObservable(myExecutor).onErrorResumeNext(throwable -> {
+
+            if(hotTracks.size()==0){
+                myView.showErrorMessage("error: didn't receive any data");
+            }else{
+                myView.showErrorMessage("error: some data is lost");
+            }
+            return Observable.just(hotTracks);
+                }).subscribeOn(Schedulers.from(myExecutor))
                 .filter(trackList -> trackList != null & trackList.size() > 0)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnComplete(() -> {
                             Logger.log(TAG, "complete");
                             myView.showHotSongs(hotTracks);
-                            myView.setLoadingIndicator(false);})
-                .doOnError(message -> {
-                            myView.showErrorMessage();
                             myView.setLoadingIndicator(false);})
                 .subscribe(trackList -> {
                     Logger.log(TAG, "adding one to the list, size: " + trackList.size());

@@ -1,17 +1,23 @@
 package com.example.allengotstuff.soundcloudapp.data.network;
 
 
+import android.util.Log;
+
 import com.example.allengotstuff.soundcloudapp.databean.FollowingList;
 import com.example.allengotstuff.soundcloudapp.databean.Track;
 import com.example.allengotstuff.soundcloudapp.utils.GsonParser;
 import com.example.allengotstuff.soundcloudapp.utils.Logger;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 
 
 import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -54,8 +60,9 @@ public class ApiHelper {
 
 
     /**
-     *  network call to get target user's 20 most recent following users
-     * @return  a observable of sting in json format
+     * network call to get target user's 20 most recent following users
+     *
+     * @return a observable of sting in json format
      */
     public Observable<String> getTargetFollowers() {
 
@@ -78,16 +85,16 @@ public class ApiHelper {
             try {
 
                 Response response = myHttpClient.newCall(request).execute();
-                if (response !=null & response.isSuccessful()) {
+                if (response != null & response.isSuccessful()) {
                     String data = response.body().string();
                     subscriber.onNext(data);
                 }
 
-            } catch (IOException  e) {
+            } catch (IOException e) {
 
                 subscriber.onError(e);
 
-            }finally {
+            } finally {
                 subscriber.onComplete();
             }
         });
@@ -96,6 +103,7 @@ public class ApiHelper {
 
     /**
      * retrieve a single user detail by providing its url
+     *
      * @param userId particular user's id
      * @return a observable of sting in json format
      */
@@ -127,7 +135,7 @@ public class ApiHelper {
                     } catch (IOException e) {
                         // notify error e.getMessage()
                         subscriber.onError(e);
-                    }finally {
+                    } finally {
                         subscriber.onComplete();
                     }
                 }
@@ -135,9 +143,8 @@ public class ApiHelper {
     }
 
 
-
     /**
-     *  network call to get particular track by id
+     * network call to get particular track by id
      *
      * @param id particular track's id
      * @return a observable of sting in json format
@@ -169,7 +176,7 @@ public class ApiHelper {
             } catch (IOException e) {
                 // notify error e.getMessage()
                 subscriber.onError(e);
-            }finally {
+            } finally {
                 subscriber.onComplete();
             }
 
@@ -178,7 +185,7 @@ public class ApiHelper {
 
 
     /**
-     *  network call to get particular track by id
+     * network call to get particular track by id
      *
      * @param userId particular user's id
      * @return a observable of sting in json format
@@ -211,7 +218,7 @@ public class ApiHelper {
             } catch (IOException e) {
                 // notify error e.getMessage()
                 subscriber.onError(e);
-            }finally {
+            } finally {
                 subscriber.onComplete();
             }
 
@@ -220,11 +227,13 @@ public class ApiHelper {
 
 
     /**
-     *  This is the main api call that glue together the logic to retrieve the hot songs list
+     * This is the main api call that glue together the logic to retrieve the hot songs list
+     *
      * @param executor
      * @return target user's most recent 20 followers's favorite tracks. Result unsorted, raw data.
      */
-    public Observable<List<Track>> getHotTracksObservable(Executor executor){
+    public Observable<List<Track>> getHotTracksObservable(Executor executor) {
+
 
         // get the target's user's lastest following users.
         Observable<FollowingList> lastestFollowers = getTargetFollowers()
@@ -232,9 +241,20 @@ public class ApiHelper {
 
 
         // get each follow users favorite track list. retrieve each user's favorite track list concurrently.
-          Observable<List<Track>> followersFavoriteTracks = lastestFollowers.flatMap(followingList -> Observable.fromIterable(followingList.getCollection()))
+        Observable<List<Track>> followersFavoriteTracks = lastestFollowers.flatMap(followingList -> Observable.fromIterable(followingList.getCollection()))
                 .flatMap(SoundCloudUser -> Observable.just(SoundCloudUser.getId()))
-                .flatMap(userId -> getFavoriotTracksByUser(userId).map(json -> GsonParser.parseFavoriteTracks(json)).subscribeOn(Schedulers.from(executor)));
+                .flatMap(userId -> getFavoriotTracksByUser(userId).onErrorResumeNext(throwable -> {
+                    // catching the error for each individual network request to get differnt
+                    // user tracks on different thread
+                    Log.w(TAG, throwable.getMessage());
+                    return Observable.just("error");
+
+                }).filter(message -> message != "error").subscribeOn(Schedulers.from(executor))
+                        .map(json ->GsonParser.parseFavoriteTracks(json)).onErrorResumeNext(throwable -> {
+                            //catching error from upstream source, if the json format is wrong, or networking is done
+                            Log.w(TAG, throwable.getMessage());
+                            return Observable.just(Collections.emptyList());
+                        }));
 
         return followersFavoriteTracks;
 

@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements HotSongContract.V
     }
 
     @Override
-    public void showErrorMessage() {
+    public void showErrorMessage(String message) {
 
         Logger.log(TAG," showing error message");
     }
