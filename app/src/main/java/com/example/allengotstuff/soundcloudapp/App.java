@@ -2,6 +2,8 @@ package com.example.allengotstuff.soundcloudapp;
 
 import android.app.Application;
 
+import com.facebook.drawee.backends.pipeline.Fresco;
+
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -49,6 +51,7 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Fresco.initialize(getApplicationContext());
     }
 
 

@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.example.allengotstuff.soundcloudapp.R;
+import com.facebook.drawee.view.SimpleDraweeView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -17,6 +18,9 @@ public class HotSongHolder extends RecyclerView.ViewHolder{
 
     @BindView(R.id.title)
     public TextView title;
+
+    @BindView(R.id.art_image)
+    public SimpleDraweeView artImage;
 
     public HotSongHolder(View itemView) {
         super(itemView);

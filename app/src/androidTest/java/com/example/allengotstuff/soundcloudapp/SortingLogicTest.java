@@ -53,10 +53,93 @@ public class SortingLogicTest {
         for(int i =0; i<10; i++){
             Track track = new Track();
             track.setBpm(i);
+            track.setRelease_year(i);
+            track.setComment_count(i);
+            track.setPlayback_count(i);
             result.add(track);
         }
 
     }
+
+
+    @Test
+    public void mostCommentSortLogic(){
+
+        TestObserver<List<Track>> testSubscriber = new TestObserver<>();
+
+        mySorter.sort(result, CustomSorter.SORT_CATEGOTY.BPM)
+                .subscribe(testSubscriber);
+
+        testSubscriber.assertComplete();
+        testSubscriber.assertNoErrors();
+        testSubscriber.assertValueCount(1);
+
+        List<Track> result = testSubscriber.values().get(0);
+
+        assertThat(result.get(0).getComment_count(), is(9));
+        assertThat(result.get(1).getComment_count(), is(8));
+        assertThat(result.get(2).getComment_count(), is(7));
+        assertThat(result.get(3).getComment_count(), is(6));
+        assertThat(result.get(4).getComment_count(), is(5));
+        assertThat(result.get(5).getComment_count(), is(4));
+        assertThat(result.get(6).getComment_count(), is(3));
+        assertThat(result.get(7).getComment_count(), is(2));
+        assertThat(result.get(8).getComment_count(), is(1));
+        assertThat(result.get(9).getComment_count(), is(0));
+    }
+
+    @Test
+    public void newReleaseSortLogic(){
+
+        TestObserver<List<Track>> testSubscriber = new TestObserver<>();
+
+        mySorter.sort(result, CustomSorter.SORT_CATEGOTY.BPM)
+                .subscribe(testSubscriber);
+
+        testSubscriber.assertComplete();
+        testSubscriber.assertNoErrors();
+        testSubscriber.assertValueCount(1);
+
+        List<Track> result = testSubscriber.values().get(0);
+
+        assertThat(result.get(0).getRelease_year(), is(9));
+        assertThat(result.get(1).getRelease_year(), is(8));
+        assertThat(result.get(2).getRelease_year(), is(7));
+        assertThat(result.get(3).getRelease_year(), is(6));
+        assertThat(result.get(4).getRelease_year(), is(5));
+        assertThat(result.get(5).getRelease_year(), is(4));
+        assertThat(result.get(6).getRelease_year(), is(3));
+        assertThat(result.get(7).getRelease_year(), is(2));
+        assertThat(result.get(8).getRelease_year(), is(1));
+        assertThat(result.get(9).getRelease_year(), is(0));
+    }
+
+    @Test
+    public void MostPlayedSortLogic(){
+
+        TestObserver<List<Track>> testSubscriber = new TestObserver<>();
+
+        mySorter.sort(result, CustomSorter.SORT_CATEGOTY.BPM)
+                .subscribe(testSubscriber);
+
+        testSubscriber.assertComplete();
+        testSubscriber.assertNoErrors();
+        testSubscriber.assertValueCount(1);
+
+        List<Track> result = testSubscriber.values().get(0);
+
+        assertThat(result.get(0).getPlayback_count(), is(9));
+        assertThat(result.get(1).getPlayback_count(), is(8));
+        assertThat(result.get(2).getPlayback_count(), is(7));
+        assertThat(result.get(3).getPlayback_count(), is(6));
+        assertThat(result.get(4).getPlayback_count(), is(5));
+        assertThat(result.get(5).getPlayback_count(), is(4));
+        assertThat(result.get(6).getPlayback_count(), is(3));
+        assertThat(result.get(7).getPlayback_count(), is(2));
+        assertThat(result.get(8).getPlayback_count(), is(1));
+        assertThat(result.get(9).getPlayback_count(), is(0));
+    }
+
 
     @Test
     public void bpmSortLogic(){

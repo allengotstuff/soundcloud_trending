@@ -2,6 +2,9 @@ package com.example.allengotstuff.soundcloudapp.sortlogic;
 
 import com.example.allengotstuff.soundcloudapp.databean.Track;
 import com.example.allengotstuff.soundcloudapp.sortlogic.comparator.BpmComparator;
+import com.example.allengotstuff.soundcloudapp.sortlogic.comparator.MostCommentComparator;
+import com.example.allengotstuff.soundcloudapp.sortlogic.comparator.NewReleaseComparator;
+import com.example.allengotstuff.soundcloudapp.sortlogic.comparator.PlayCountComparator;
 import com.example.allengotstuff.soundcloudapp.utils.Logger;
 
 import java.util.Collections;
@@ -29,16 +32,16 @@ public class CustomSorter implements BaseSorter<Track> {
                 break;
 
             case PLAY_BACK_COUNT:
-
+                Collections.sort(list,new PlayCountComparator());
                 break;
 
             case RELEASE_YEAR:
-
+                Collections.sort(list,new NewReleaseComparator());
                 break;
 
 
             case COMMENT_COUNT:
-
+                Collections.sort(list,new MostCommentComparator());
                 break;
         }
 
