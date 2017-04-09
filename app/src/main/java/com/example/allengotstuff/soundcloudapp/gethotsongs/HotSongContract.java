@@ -2,8 +2,11 @@ package com.example.allengotstuff.soundcloudapp.gethotsongs;
 
 import com.example.allengotstuff.soundcloudapp.BasePresenter;
 import com.example.allengotstuff.soundcloudapp.BaseView;
+import com.example.allengotstuff.soundcloudapp.sortlogic.BaseSorter;
 
 import java.util.List;
+
+import io.reactivex.Observable;
 
 /**
  * Created by allengotstuff on 4/5/2017.
@@ -24,5 +27,6 @@ public interface HotSongContract {
     interface Presenter extends BasePresenter{
 
         void refreshHotSongs();
+
     }
 }

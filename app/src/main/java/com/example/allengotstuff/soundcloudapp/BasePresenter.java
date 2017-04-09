@@ -7,4 +7,6 @@ package com.example.allengotstuff.soundcloudapp;
 public interface BasePresenter {
 
     void start();
+
+    void stop();
 }

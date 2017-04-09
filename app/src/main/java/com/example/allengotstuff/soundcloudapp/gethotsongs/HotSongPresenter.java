@@ -4,6 +4,8 @@ import android.support.annotation.NonNull;
 
 import com.example.allengotstuff.soundcloudapp.data.network.ApiHelper;
 import com.example.allengotstuff.soundcloudapp.databean.Track;
+import com.example.allengotstuff.soundcloudapp.sortlogic.BaseSorter;
+import com.example.allengotstuff.soundcloudapp.sortlogic.CustomSorter;
 import com.example.allengotstuff.soundcloudapp.utils.Logger;
 
 import java.util.ArrayList;
@@ -12,6 +14,7 @@ import java.util.concurrent.Executor;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 import static com.google.gson.internal.$Gson$Preconditions.checkNotNull;
@@ -32,6 +35,10 @@ public class HotSongPresenter implements HotSongContract.Presenter {
 
     private List<Track> hotTracks;
 
+    private Disposable hotTracksDispos;
+
+    private BaseSorter mySorter;
+
 
 
     public HotSongPresenter(@NonNull HotSongContract.View view, @NonNull ApiHelper apiHelper, @NonNull Executor executor) {
@@ -42,11 +49,20 @@ public class HotSongPresenter implements HotSongContract.Presenter {
 
         hotTracks = new ArrayList<>(150);
 
+        mySorter = new CustomSorter();
+
     }
 
     @Override
     public void start() {
         refreshHotSongs();
+    }
+
+    @Override
+    public void stop() {
+        if(hotTracksDispos!=null & !hotTracksDispos.isDisposed()){
+            hotTracksDispos.dispose();
+        }
     }
 
     @Override
@@ -58,7 +74,7 @@ public class HotSongPresenter implements HotSongContract.Presenter {
             hotTracks.clear();
         }
 
-        myApiHelper.getHotTracksObservable(myExecutor).onErrorResumeNext(throwable -> {
+        hotTracksDispos = myApiHelper.getHotTracksObservable(myExecutor).onErrorResumeNext(throwable -> {
 
             if(hotTracks.size()==0){
                 myView.showErrorMessage("error: didn't receive any data");
@@ -69,15 +85,27 @@ public class HotSongPresenter implements HotSongContract.Presenter {
                 }).subscribeOn(Schedulers.from(myExecutor))
                 .filter(trackList -> trackList != null & trackList.size() > 0)
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnComplete(() -> {
-                            Logger.log(TAG, "complete");
-                            myView.showHotSongs(hotTracks);
-                            myView.setLoadingIndicator(false);})
+                .doOnComplete(
+                        // do the sorting logic when finish retrieve all the tracks from 20 followers
+                        () ->sortTracks(BaseSorter.SORT_CATEGOTY.BPM)
+                )
                 .subscribe(trackList -> {
                     Logger.log(TAG, "adding one to the list, size: " + trackList.size());
                     hotTracks.addAll(trackList);
                 });
+    }
 
+
+    public void sortTracks(BaseSorter.SORT_CATEGOTY categoty) {
+        //do a sorting when sequence is finished
+        mySorter.sort(hotTracks,categoty)
+                .subscribeOn(Schedulers.from(myExecutor))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(finalList ->{
+                    Logger.log(TAG, "complete");
+                    myView.showHotSongs((List)finalList);
+                    myView.setLoadingIndicator(false);
+                });
     }
 
 

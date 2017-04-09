@@ -98,11 +98,12 @@ public class MainActivity extends AppCompatActivity implements HotSongContract.V
 
         Logger.log(TAG," hot songs size: "+ hotsongs.size());
 
-//        int i =0;
-//        while(i<20){
-//            Logger.log(TAG," hot songs size: "+ hotsongs.get(i).toString());
-//            i++;
-//        }
+        int i =0;
+        while(i<80){
+            Logger.log(TAG," hot songs bpm: "+ ((Track)hotsongs.get(i)).getBpm());
+            i++;
+        }
+
     }
 
     @Override
@@ -116,5 +117,9 @@ public class MainActivity extends AppCompatActivity implements HotSongContract.V
 
     }
 
-
+    @Override
+    protected void onStop() {
+        super.onStop();
+        myPresenter.stop();
+    }
 }

@@ -29,7 +29,18 @@ public class Track {
 
     private int release_year;
 
-    public Track (){}
+    public Track (){
+//        id=0L;
+//        title="";
+//        uri="";
+//        artwork_url ="";
+//        description="";
+//        genre = "dddddddddddddddddddddddddddddddd";
+//        bpm=0;
+//        playback_count=0;
+//        comment_count=0;
+//        release_year=0;
+    }
 
     public long getId() {
         return id;
