@@ -11,7 +11,7 @@ import io.reactivex.Observable;
 public interface BaseSorter<T> {
 
      enum SORT_CATEGOTY {
-        BPM, PLAY_BACK_COUNT, RELEASE_YEAR, COMMENT_COUNT
+        BPM, PLAY_BACK_COUNT,  COMMENT_COUNT
     }
 
     Observable<List<T>> sort(List<T> list, SORT_CATEGOTY category);

@@ -15,6 +15,7 @@ import com.example.allengotstuff.soundcloudapp.databean.Track;
 import com.example.allengotstuff.soundcloudapp.gethotsongs.HotSongContract;
 import com.example.allengotstuff.soundcloudapp.gethotsongs.HotSongPresenter;
 import com.example.allengotstuff.soundcloudapp.list.adapter.HotSongAdapter;
+import com.example.allengotstuff.soundcloudapp.list.holder.HotSongHolder;
 import com.example.allengotstuff.soundcloudapp.sortlogic.BaseSorter;
 import com.example.allengotstuff.soundcloudapp.utils.Logger;
 
@@ -27,7 +28,7 @@ import butterknife.ButterKnife;
 import io.reactivex.schedulers.Schedulers;
 
 
-public final class MainActivity extends AppCompatActivity implements HotSongContract.View<HotSongContract.Presenter>, View.OnClickListener{
+public final class MainActivity extends AppCompatActivity implements HotSongContract.View<HotSongContract.Presenter>, View.OnClickListener,HotSongAdapter.OnRecyclerViewClickListener{
 
     private static final String TAG = "MainActivity";
 
@@ -35,9 +36,9 @@ public final class MainActivity extends AppCompatActivity implements HotSongCont
     private Executor myExecutor;
 
     private HotSongContract.Presenter myPresenter;
-    private   ApiHelper helper;
+    private ApiHelper helper;
 
-    private RecyclerView.Adapter mAdapter;
+    private HotSongAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
     @BindView (R.id.myRecyclerView)
@@ -52,35 +53,19 @@ public final class MainActivity extends AppCompatActivity implements HotSongCont
     @BindView (R.id.most_played_sort_button)
     Button button_most_played;
 
-    @BindView (R.id.new_relase_sort_button)
-    Button button_new_relase;
-
     @BindView (R.id.most_commented_sort_button)
     Button button_most_comment;
-
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
 
+        ButterKnife.bind(this);
         init();
         initRecyclerView();
         initSortButton();
-
-//        Logger.log(TAG, "begin network");
-//        helper.getHotTracksObservable(myExecutor).onErrorReturnItem(hotTracks)
-//                .subscribeOn(Schedulers.from(myExecutor))
-//                .filter(trackList -> trackList != null & trackList.size() > 0)
-//                .doOnComplete( () ->Logger.log(TAG, "complete" +hotTracks.size() )
-//                ).doOnError(throwable-> Logger.log(TAG, throwable.getMessage()))
-//                .subscribe(trackList -> {
-//                    Logger.log(TAG, "adding one to the list, size: "+ trackList.size());
-//                    hotTracks.addAll(trackList);
-//                });
-
     }
 
 
@@ -105,12 +90,12 @@ public final class MainActivity extends AppCompatActivity implements HotSongCont
         mAdapter = new HotSongAdapter(hotTracks);
         mRecyclerView.addItemDecoration( new HotSongAdapter.ItemDecoration(20));
         mRecyclerView.setAdapter(mAdapter);
+        mAdapter.setOnItemClickListener(this);
     }
 
     private void initSortButton(){
         button_bpm.setOnClickListener(this);
         button_most_played.setOnClickListener(this);
-        button_new_relase.setOnClickListener(this);
         button_most_comment.setOnClickListener(this);
     }
 
@@ -125,13 +110,6 @@ public final class MainActivity extends AppCompatActivity implements HotSongCont
 
         mAdapter.notifyDataSetChanged();
 
-//        Logger.log(TAG," hot songs size: "+ hotsongs.size());
-
-//        int i =0;
-//        while(i<80){
-//            Logger.log(TAG," hot songs bpm: "+ ((Track)hotsongs.get(i)).getBpm());
-//            i++;
-//        }
     }
 
 
@@ -146,10 +124,6 @@ public final class MainActivity extends AppCompatActivity implements HotSongCont
 
             case R.id.most_played_sort_button:
                 ((HotSongPresenter)myPresenter).sortTracks(BaseSorter.SORT_CATEGOTY.PLAY_BACK_COUNT);
-                break;
-
-            case R.id.new_relase_sort_button:
-                ((HotSongPresenter)myPresenter).sortTracks(BaseSorter.SORT_CATEGOTY.RELEASE_YEAR);
                 break;
 
             case R.id.most_commented_sort_button:
@@ -181,4 +155,14 @@ public final class MainActivity extends AppCompatActivity implements HotSongCont
     }
 
 
+    @Override
+    public void onItemClick(HotSongHolder myholder, int position) {
+
+        Track clickTrack = hotTracks.get(position);
+
+        Logger.log(TAG, "BPM" + clickTrack.getBpm());
+        Logger.log(TAG, "most_played" + clickTrack.getPlayback_count());
+        Logger.log(TAG, "release year" + clickTrack.getRelease_year());
+        Logger.log(TAG, "comment-count" + clickTrack.getComment_count());
+    }
 }

@@ -24,15 +24,20 @@ public class HotSongAdapter extends RecyclerView.Adapter<HotSongHolder>  {
 
     private List<Track> myTrackList;
 
+    public interface OnRecyclerViewClickListener{
+        void onItemClick(HotSongHolder myholder, int position);
+    }
+
+    private OnRecyclerViewClickListener onItemClickListener;
+
     public HotSongAdapter (List datalist){
         myTrackList = datalist;
     }
 
 
-//    public void updateList( ){
-//
-//        notifyDataSetChanged();
-//    }
+    public void setOnItemClickListener(OnRecyclerViewClickListener listener){
+        onItemClickListener = listener;
+    }
 
 
     @Override
@@ -59,6 +64,11 @@ public class HotSongAdapter extends RecyclerView.Adapter<HotSongHolder>  {
                     .build();
             holder.artImage.setController(controller);
         }
+
+        holder.itemView.setOnClickListener(view ->{
+            if(onItemClickListener!=null)
+                onItemClickListener.onItemClick(holder,position);
+        });
     }
 
     @Override

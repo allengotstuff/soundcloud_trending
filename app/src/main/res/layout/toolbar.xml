@@ -15,6 +15,7 @@
             android:id="@+id/bpm_sort_button"
             android:layout_width="0dp"
             android:layout_height="70dp"
+            android:layout_gravity="center"
             android:lines="2"
             android:text="Beat per min"
             android:layout_weight="1"/>
@@ -22,21 +23,23 @@
             android:id="@+id/most_played_sort_button"
             android:layout_width="0dp"
             android:layout_height="70dp"
+            android:layout_gravity="center"
             android:lines="2"
             android:text="most played"
             android:layout_weight="1"/>
-        <Button
-            android:id="@+id/new_relase_sort_button"
-            android:layout_width="0dp"
-            android:text="new release"
-            android:lines="2"
-            android:layout_height="70dp"
-            android:layout_weight="1"/>
+        <!--<Button-->
+            <!--android:id="@+id/new_relase_sort_button"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:text="new release"-->
+            <!--android:lines="2"-->
+            <!--android:layout_height="70dp"-->
+            <!--android:layout_weight="1"/>-->
         <Button
             android:id="@+id/most_commented_sort_button"
             android:layout_width="0dp"
-            android:text="most commen"
+            android:text="most commented"
             android:lines="2"
+            android:layout_gravity="center"
             android:layout_height="70dp"
             android:layout_weight="1"/>
     </LinearLayout>

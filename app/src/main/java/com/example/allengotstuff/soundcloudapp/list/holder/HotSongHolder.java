@@ -22,8 +22,11 @@ public class HotSongHolder extends RecyclerView.ViewHolder{
     @BindView(R.id.art_image)
     public SimpleDraweeView artImage;
 
+    public View itemView;
+
     public HotSongHolder(View itemView) {
         super(itemView);
+        this.itemView = itemView;
         ButterKnife.bind(this, itemView);
     }
 

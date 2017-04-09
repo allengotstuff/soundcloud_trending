@@ -35,11 +35,6 @@ public class CustomSorter implements BaseSorter<Track> {
                 Collections.sort(list,new PlayCountComparator());
                 break;
 
-            case RELEASE_YEAR:
-                Collections.sort(list,new NewReleaseComparator());
-                break;
-
-
             case COMMENT_COUNT:
                 Collections.sort(list,new MostCommentComparator());
                 break;
