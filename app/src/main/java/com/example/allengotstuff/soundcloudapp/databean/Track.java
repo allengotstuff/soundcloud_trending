@@ -7,7 +7,7 @@ import android.os.Parcelable;
  * Created by allengotstuff on 4/6/2017.
  */
 
-public class Track {
+public class Track implements Parcelable{
 
     private long id;
 

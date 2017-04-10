@@ -1,5 +1,6 @@
 package com.example.allengotstuff.soundcloudapp;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,9 +15,11 @@ import com.example.allengotstuff.soundcloudapp.data.network.ApiHelper;
 import com.example.allengotstuff.soundcloudapp.databean.Track;
 import com.example.allengotstuff.soundcloudapp.gethotsongs.HotSongContract;
 import com.example.allengotstuff.soundcloudapp.gethotsongs.HotSongPresenter;
+import com.example.allengotstuff.soundcloudapp.gethotsongs.SongDetailActivity;
 import com.example.allengotstuff.soundcloudapp.list.adapter.HotSongAdapter;
 import com.example.allengotstuff.soundcloudapp.list.holder.HotSongHolder;
 import com.example.allengotstuff.soundcloudapp.sortlogic.BaseSorter;
+import com.example.allengotstuff.soundcloudapp.utils.Constant;
 import com.example.allengotstuff.soundcloudapp.utils.Logger;
 
 import java.util.ArrayList;
@@ -160,9 +163,13 @@ public final class MainActivity extends AppCompatActivity implements HotSongCont
 
         Track clickTrack = hotTracks.get(position);
 
-        Logger.log(TAG, "BPM" + clickTrack.getBpm());
-        Logger.log(TAG, "most_played" + clickTrack.getPlayback_count());
-        Logger.log(TAG, "release year" + clickTrack.getRelease_year());
-        Logger.log(TAG, "comment-count" + clickTrack.getComment_count());
+        Intent intent = new Intent(getBaseContext(), SongDetailActivity.class);
+        intent.putExtra(Constant.DELIVERY_TRACK, clickTrack);
+        startActivity(intent);
+
+//        Logger.log(TAG, "BPM" + clickTrack.getBpm());
+//        Logger.log(TAG, "most_played" + clickTrack.getPlayback_count());
+//        Logger.log(TAG, "release year" + clickTrack.getRelease_year());
+//        Logger.log(TAG, "comment-count" + clickTrack.getComment_count());
     }
 }

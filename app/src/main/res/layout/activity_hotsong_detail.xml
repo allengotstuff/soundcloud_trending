@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="20dp"
+        android:orientation="vertical">
+
+        <com.facebook.drawee.view.SimpleDraweeView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:fresco="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/draweeView_art_image"
+            android:layout_width="200dp"
+            android:layout_height="150dp"
+            android:layout_gravity="center"
+            android:adjustViewBounds="true"
+            fresco:actualImageScaleType="fitCenter"
+            fresco:placeholderImage="@mipmap/ic_launcher"
+            fresco:progressBarImageScaleType="center"
+            fresco:viewAspectRatio="1.33" />
+
+        <TextView
+            android:id="@+id/tv_track_detail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:padding="30dp"
+            android:textColor="@android:color/background_dark"
+            android:gravity="center"/>
+
+    </LinearLayout>
+
+
+</ScrollView>
