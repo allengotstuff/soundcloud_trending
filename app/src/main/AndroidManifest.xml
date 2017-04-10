@@ -3,6 +3,7 @@
     package="com.example.allengotstuff.soundcloudapp">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
 
     <application
         android:name=".App"
@@ -25,6 +26,9 @@
             android:name=".gethotsongs.SongDetailActivity"
             android:screenOrientation="portrait"
             android:launchMode="singleTask"/>
+
+        <receiver android:name=".MainActivity$AlarmReceiver"
+            android:enabled="true"/>
     </application>
 
 </manifest>

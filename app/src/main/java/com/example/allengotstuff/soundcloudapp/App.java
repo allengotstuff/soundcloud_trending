@@ -26,7 +26,14 @@ public class App extends Application {
         if (client == null) {
             synchronized (App.class) {
                 if (client == null) {
-                    client = new OkHttpClient();
+
+                    OkHttpClient.Builder builder = new OkHttpClient.Builder()
+                            .connectTimeout(15, TimeUnit.SECONDS)
+                            .writeTimeout(15,TimeUnit.SECONDS)
+                            .readTimeout(15,TimeUnit.SECONDS);
+
+                    client =  builder.build();
+
                 }
             }
         }
@@ -39,7 +46,7 @@ public class App extends Application {
         if (myExecutor == null) {
             synchronized (App.class) {
                 if (myExecutor == null) {
-                    myExecutor = new ThreadPoolExecutor(12, 22, 3000L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
+                    myExecutor = new ThreadPoolExecutor(12, 30, 3000L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>());
                 }
             }
         }
@@ -53,6 +60,9 @@ public class App extends Application {
         super.onCreate();
         Fresco.initialize(getApplicationContext());
     }
+
+
+
 
 
 }

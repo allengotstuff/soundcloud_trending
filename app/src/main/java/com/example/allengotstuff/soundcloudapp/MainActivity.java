@@ -1,6 +1,11 @@
 package com.example.allengotstuff.soundcloudapp;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -31,7 +36,7 @@ import butterknife.ButterKnife;
 import io.reactivex.schedulers.Schedulers;
 
 
-public final class MainActivity extends AppCompatActivity implements HotSongContract.View<HotSongContract.Presenter>, View.OnClickListener,HotSongAdapter.OnRecyclerViewClickListener{
+public final class MainActivity extends AppCompatActivity implements HotSongContract.View<HotSongContract.Presenter>, View.OnClickListener, HotSongAdapter.OnRecyclerViewClickListener {
 
     private static final String TAG = "MainActivity";
 
@@ -44,19 +49,22 @@ public final class MainActivity extends AppCompatActivity implements HotSongCont
     private HotSongAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
-    @BindView (R.id.myRecyclerView)
+    private AlarmManager alarmManager;
+    private PendingIntent alarmIntent;
+
+    @BindView(R.id.myRecyclerView)
     RecyclerView mRecyclerView;
 
-    @BindView (R.id.loading_pb)
+    @BindView(R.id.loading_pb)
     ProgressBar myProgressbar;
 
-    @BindView (R.id.bpm_sort_button)
+    @BindView(R.id.bpm_sort_button)
     Button button_bpm;
 
-    @BindView (R.id.most_played_sort_button)
+    @BindView(R.id.most_played_sort_button)
     Button button_most_played;
 
-    @BindView (R.id.most_commented_sort_button)
+    @BindView(R.id.most_commented_sort_button)
     Button button_most_comment;
 
 
@@ -71,16 +79,37 @@ public final class MainActivity extends AppCompatActivity implements HotSongCont
         initSortButton();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setupAlarmClock();
+    }
 
-    private void init(){
+    @Override
+    protected void onPause() {
+        super.onPause();
+        myPresenter.stop();
+
+        if (alarmManager != null)
+            alarmManager.cancel(alarmIntent);
+    }
+
+
+
+    private void init() {
         helper = new ApiHelper(App.getHttpClient());
         myExecutor = App.getExecutor();
 
-        myPresenter = new HotSongPresenter(this,helper,myExecutor);
+        myPresenter = new HotSongPresenter(this, helper, myExecutor);
         myPresenter.start();
+
+        //init alarm data
+        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this, AlarmReceiver.class);
+        alarmIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
     }
 
-    private void initRecyclerView(){
+    private void initRecyclerView() {
 
         hotTracks = new ArrayList<>(150);
 
@@ -91,12 +120,12 @@ public final class MainActivity extends AppCompatActivity implements HotSongCont
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         mAdapter = new HotSongAdapter(hotTracks);
-        mRecyclerView.addItemDecoration( new HotSongAdapter.ItemDecoration(20));
+        mRecyclerView.addItemDecoration(new HotSongAdapter.ItemDecoration(20));
         mRecyclerView.setAdapter(mAdapter);
         mAdapter.setOnItemClickListener(this);
     }
 
-    private void initSortButton(){
+    private void initSortButton() {
         button_bpm.setOnClickListener(this);
         button_most_played.setOnClickListener(this);
         button_most_comment.setOnClickListener(this);
@@ -105,11 +134,11 @@ public final class MainActivity extends AppCompatActivity implements HotSongCont
     @Override
     public void showHotSongs(List hotsongs) {
 
-        if(hotTracks.size()>0)
+        if (hotTracks.size() > 0)
             hotTracks.clear();
 
-        if(hotsongs!=null && hotsongs.size()>0 )
-             hotTracks.addAll(hotsongs);
+        if (hotsongs != null && hotsongs.size() > 0)
+            hotTracks.addAll(hotsongs);
 
         mAdapter.notifyDataSetChanged();
 
@@ -119,18 +148,17 @@ public final class MainActivity extends AppCompatActivity implements HotSongCont
     @Override
     public void onClick(View v) {
 
-        switch (v.getId())
-        {
+        switch (v.getId()) {
             case R.id.bpm_sort_button:
-                ((HotSongPresenter)myPresenter).sortTracks(BaseSorter.SORT_CATEGOTY.BPM);
+                ((HotSongPresenter) myPresenter).sortTracks(BaseSorter.SORT_CATEGOTY.BPM);
                 break;
 
             case R.id.most_played_sort_button:
-                ((HotSongPresenter)myPresenter).sortTracks(BaseSorter.SORT_CATEGOTY.PLAY_BACK_COUNT);
+                ((HotSongPresenter) myPresenter).sortTracks(BaseSorter.SORT_CATEGOTY.PLAY_BACK_COUNT);
                 break;
 
             case R.id.most_commented_sort_button:
-                ((HotSongPresenter)myPresenter).sortTracks(BaseSorter.SORT_CATEGOTY.COMMENT_COUNT);
+                ((HotSongPresenter) myPresenter).sortTracks(BaseSorter.SORT_CATEGOTY.COMMENT_COUNT);
                 break;
         }
     }
@@ -138,24 +166,20 @@ public final class MainActivity extends AppCompatActivity implements HotSongCont
     @Override
     public void showErrorMessage(String message) {
 
-        Toast.makeText(getBaseContext(),message,Toast.LENGTH_SHORT).show();
-        Logger.log(TAG," showing error message");
+        Toast.makeText(getBaseContext(), message, Toast.LENGTH_SHORT).show();
+        Logger.log(TAG, " showing error message");
     }
 
     @Override
     public void setLoadingIndicator(boolean active) {
-       if(active){
-           myProgressbar.setVisibility(View.VISIBLE);
-       }else{
-           myProgressbar.setVisibility(View.GONE);
-       }
+        if (active) {
+            myProgressbar.setVisibility(View.VISIBLE);
+        } else {
+            myProgressbar.setVisibility(View.GONE);
+        }
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        myPresenter.stop();
-    }
+
 
 
     @Override
@@ -166,10 +190,20 @@ public final class MainActivity extends AppCompatActivity implements HotSongCont
         Intent intent = new Intent(getBaseContext(), SongDetailActivity.class);
         intent.putExtra(Constant.DELIVERY_TRACK, clickTrack);
         startActivity(intent);
+    }
 
-//        Logger.log(TAG, "BPM" + clickTrack.getBpm());
-//        Logger.log(TAG, "most_played" + clickTrack.getPlayback_count());
-//        Logger.log(TAG, "release year" + clickTrack.getRelease_year());
-//        Logger.log(TAG, "comment-count" + clickTrack.getComment_count());
+    private void setupAlarmClock() {
+        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() + 60 * 1000,
+                AlarmManager.INTERVAL_FIFTEEN_MINUTES, alarmIntent);
+    }
+
+    public final class AlarmReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            myPresenter.refreshHotSongs();
+
+        }
     }
 }
